@@ -1,0 +1,4 @@
+#ifndef PAGEANALYZER_H
+#define PAGEANALYZER_H
+
+#endif // PAGEANALYZER_H
