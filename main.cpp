@@ -1,4 +1,6 @@
 #include <iostream>
+#include "picPageAnalyzer.h"
+#include "infoPageAnalyzer.h"
 
 using namespace std;
 

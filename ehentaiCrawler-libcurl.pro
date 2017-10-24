@@ -4,8 +4,12 @@ CONFIG -= app_bundle
 CONFIG -= qt
 
 SOURCES += main.cpp \
-    pageAnalyzer.cpp
+    pageAnalyzer.cpp \
+    infoPageAnalyzer.cpp \
+    picPageAnalyzer.cpp
 
 HEADERS += \
     pageAnalyzer.h \
-    commonHeader.h
+    commonHeader.h \
+    infoPageAnalyzer.h \
+    picPageAnalyzer.h
