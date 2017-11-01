@@ -6,10 +6,12 @@ CONFIG -= qt
 SOURCES += main.cpp \
     pageAnalyzer.cpp \
     infoPageAnalyzer.cpp \
-    picPageAnalyzer.cpp
+    picPageAnalyzer.cpp \
+    downloader.cpp
 
 HEADERS += \
     pageAnalyzer.h \
     commonHeader.h \
     infoPageAnalyzer.h \
-    picPageAnalyzer.h
+    picPageAnalyzer.h \
+    downloader.h
