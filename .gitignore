@@ -1,0 +1,5 @@
+*.pro.user
+*.pro
+bin/
+.idea
+.DS_Store
