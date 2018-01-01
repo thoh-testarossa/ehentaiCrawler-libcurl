@@ -1,7 +1,7 @@
-#ifndef COMMON_H
-#define COMMON_H
+#ifndef CONFIG_H
+#define CONFIG_H
 
-#include "commonHeader.h"
+#include "config.h"
 
 #endif
 
