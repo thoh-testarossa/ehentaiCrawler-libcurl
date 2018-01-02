@@ -1,19 +1,8 @@
-#ifndef CONFIG_H
-#define CONFIG_H
+#pragma once
 
 #include "config.h"
 
-#endif
-
-#ifndef P_ANALYZER_H
-#define P_ANALYZER_H
-
 #include "pageAnalyzer.h"
-
-#endif
-
-#ifndef PICPAGEANALYZER_H
-#define PICPAGEANALYZER_H
 
 class picPageAnalyzer : public pageAnalyzer
 {
@@ -25,5 +14,3 @@ public:
     string getOriginalPicSourceURL();
     int getCurrentPageNumber();
 };
-
-#endif // PICPAGEANALYZER_H

@@ -1,12 +1,6 @@
-#ifndef CONFIG_H
-#define CONFIG_H
+#pragma once
 
 #include "config.h"
-
-#endif
-
-#ifndef PAGEANALYZER_H
-#define PAGEANALYZER_H
 
 using namespace std;
 
@@ -23,6 +17,3 @@ protected:
     vector<string> pageContent;
     void decomposePageContent();
 };
-
-
-#endif // PAGEANALYZER_H

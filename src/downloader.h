@@ -1,17 +1,17 @@
-#ifndef CONFIG_H
-#define CONFIG_H
+#pragma once
 
 #include "config.h"
-
-#endif
-
-#ifndef DOWNLOADER_H
-#define DOWNLOADER_H
 
 using namespace std;
 
 #define FILTERMODE_NEW 29
 #define FILTERMODE_ADD 30
+
+typedef struct memBlockStruc
+{
+    int realSize;
+    char *memBlock;
+}memBlockStruc;
 
 class downloader
 {
@@ -30,5 +30,3 @@ protected:
     vector<string> originalURLSet;
     vector<string> downloadURLSet;
 };
-
-#endif

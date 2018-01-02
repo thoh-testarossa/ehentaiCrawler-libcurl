@@ -30,7 +30,7 @@ vector<string> downloader::findURLwithPattern(const vector<string> &patternSet, 
             if(this->doesURLHavePattern(*url_iter, *pattern_iter))
                 break;
         }
-        if(pattern_iter == patternSet.end()) result.erase(url_iter);
+        if(!patternSet.empty() && pattern_iter == patternSet.end()) result.erase(url_iter);
     }
     this->downloadURLSet = result;
     return result;
@@ -55,9 +55,13 @@ void downloader::downloadAllURLsInSet(int threadNum, const string &path)
 void downloader::downloadURLInSetAtPos(int pos, const string &path)
 {
     CURL *curl = curl_easy_init();
-    std::string buf = std::string();
+
+    memBlockStruc buf;
+    buf.realSize = 0;
+    buf.memBlock = nullptr;
+
     curl_easy_setopt(curl, CURLOPT_URL, this->downloadURLSet.at(pos).c_str());
-    curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)&buf);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)(&buf));
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, &downloader::fetchDownloadedData);
     curl_easy_perform(curl);
     curl_easy_cleanup(curl);
@@ -66,8 +70,8 @@ void downloader::downloadURLInSetAtPos(int pos, const string &path)
     pageNo << pos;
     std::string fileName = path + pageNo.str() + std::string(".jpg");
     std::ofstream fout(fileName, ios::out | ios::binary);
-    //for(int i = 0; i < buf.size(); i++) fout.write(&buf[i], 1);
-    fout.write(buf.c_str(), buf.size());
+
+    fout.write(buf.memBlock, buf.realSize);
     fout.close();
 }
 
@@ -77,14 +81,15 @@ void downloader::downloadURLInSetByThread(int threadNo, int threadNum, const str
         this->downloadURLInSetAtPos(i, path);
 }
 
-//We assume that *stream is a external string pointer which we will push the downloaded data into it
+//We assume that *stream is a external memBlockStruc pointer which we will push the downloaded data into it
 size_t downloader::fetchDownloadedData(void *ptr, size_t size, size_t nmemb, void *stream)
 {
-    std::string *str = (std::string *)stream;
-    char *s_ptr = (char *)ptr;
-    //Copy the content in *ptr to *stream by coping every byte
-    //type "char" occupies 1 bytes for each instance
-    for(int i = 0; i < size * nmemb; i++)
-        *str += s_ptr[i];
-    return 0;
+    memBlockStruc *mem = (memBlockStruc *)stream;
+
+    mem->memBlock = new char [size];
+    if(mem->memBlock == nullptr) return -1;
+
+    memcpy(&(mem->memBlock[0]), ptr, size);
+    mem->realSize = size;
+    return mem->realSize;
 }

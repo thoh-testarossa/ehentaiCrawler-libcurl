@@ -1,7 +1,4 @@
-#ifndef COMMONHEADER_H
-#define COMMONHEADER_H
+#pragma once
 
 #include <string>
 #include <vector>
-
-#endif // COMMONHEADER_H

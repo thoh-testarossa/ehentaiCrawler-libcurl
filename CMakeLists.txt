@@ -3,6 +3,19 @@ project(ehentaiCrawler_libcurl)
 
 set(CMAKE_CXX_STANDARD 11)
 
+find_package(CURL REQUIRED)
+include_directories(${CURL_INCLUDE_DIR})
+
+set(SOURCE_FILES
+        src/downloader_test.cpp
+        src/config.h
+        src/downloader.h
+        src/downloader.cpp)
+
+add_executable(downloader_test ${SOURCE_FILES})
+
+target_link_libraries(downloader_test ${CURL_LIBRARIES})
+
 set(SOURCE_FILES
         src/main.cpp
         src/config.h
@@ -17,6 +30,4 @@ set(SOURCE_FILES
 
 add_executable(ehentaiCrawler_libcurl ${SOURCE_FILES})
 
-find_package(CURL REQUIRED)
-include_directories(${CURL_INCLUDE_DIR})
 target_link_libraries(ehentaiCrawler_libcurl ${CURL_LIBRARIES})
