@@ -10,21 +10,23 @@
 
 #include "curl/curl.h"
 
-downloader::downloader(const vector<string> &originalURLSet)
+downloader::downloader(const std::vector<std::string> &originalURLSet)
 {
     this->originalURLSet = originalURLSet;
+    this->downloadURLSet = std::vector<std::string>();
+    this->downloadResultSet = std::map<std::string, std::string>();
     curl_global_init(CURL_GLOBAL_ALL);
 }
 
 //This filter is based on "OR" mechanism
-vector<string> downloader::findURLwithPattern(const vector<string> &patternSet, int filterMode)
+std::vector<std::string> downloader::findURLwithPattern(const std::vector<std::string> &patternSet, int filterMode)
 {
-    vector<string> result = vector<string>();
+    std::vector<std::string> result = std::vector<std::string>();
     if(filterMode == FILTERMODE_NEW) result = this->originalURLSet;
     else if(filterMode == FILTERMODE_ADD) result = this->downloadURLSet;
-    for(vector<string>::iterator url_iter = result.begin(); url_iter != result.end(); url_iter++)
+    for(std::vector<std::string>::iterator url_iter = result.begin(); url_iter != result.end(); url_iter++)
     {
-        vector<string>::const_iterator pattern_iter;
+        std::vector<std::string>::const_iterator pattern_iter;
         for(pattern_iter = patternSet.begin(); pattern_iter != patternSet.end(); pattern_iter++)
         {
             if(this->doesURLHavePattern(*url_iter, *pattern_iter))
@@ -36,23 +38,31 @@ vector<string> downloader::findURLwithPattern(const vector<string> &patternSet, 
     return result;
 }
 
-bool downloader::doesURLHavePattern(const string &url, const string &pattern)
+bool downloader::doesURLHavePattern(const std::string &url, const std::string &pattern)
 {
-    if(url.find(pattern) != string::npos) return true;
+    if(url.find(pattern) != std::string::npos) return true;
     else return false;
 }
 
-void downloader::downloadAllURLsInSet(int threadNum, const string &path)
+//A multiple thread method(downloadURLInSetByThread called)
+//Notice: thread constructor only accepts value parameters and it will reject reference parameters
+void downloader::downloadAllURLsInSet(int threadNum, const std::string &path)
 {
-    //void (downloader::*f_ptr) (int, int, const std::string&) = &downloader::downloadURLInSetByThread;
+    std::vector<std::map<std::string, std::string>> tmpResultSet = std::vector<std::map<std::string, std::string>>();
+    for(int i = 0; i < threadNum; i++)
+        tmpResultSet.push_back(std::map<std::string, std::string>());
     for(int i = 0; i < threadNum; i++)
     {
-        std::thread thd(&downloader::downloadURLInSetByThread, this, i, threadNum, path);
+        std::thread thd(&downloader::downloadURLInSetByThread, this, i, threadNum, path, &tmpResultSet[i]);
         thd.join();
     }
+    for(int i = 0; i < threadNum; i++)
+        this->downloadResultSet.insert(tmpResultSet[i].begin(), tmpResultSet[i].end());
 }
 
-void downloader::downloadURLInSetAtPos(int pos, const string &path)
+//Download the content from the url this->downloadURLSet[pos]
+//libcurl used here
+std::string downloader::downloadURLInSetAtPos(int pos, const std::string &path)
 {
     CURL *curl = curl_easy_init();
 
@@ -60,25 +70,36 @@ void downloader::downloadURLInSetAtPos(int pos, const string &path)
     buf.realSize = 0;
     buf.memBlock = nullptr;
 
-    curl_easy_setopt(curl, CURLOPT_URL, this->downloadURLSet.at(pos).c_str());
+    curl_easy_setopt(curl, CURLOPT_URL, this->downloadURLSet[pos].c_str());
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)(&buf));
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, &downloader::fetchDownloadedData);
     curl_easy_perform(curl);
     curl_easy_cleanup(curl);
 
-    std::stringstream pageNo;
-    pageNo << pos;
-    std::string fileName = path + pageNo.str() + std::string(".jpg");
-    std::ofstream fout(fileName, ios::out | ios::binary);
+    std::string content = std::string("");
 
-    fout.write(buf.memBlock, buf.realSize);
-    fout.close();
+    for(int i = 0; i < buf.realSize; i++)
+        content += buf.memBlock[i];
+
+    return content;
 }
 
-void downloader::downloadURLInSetByThread(int threadNo, int threadNum, const string &path)
+//One thread generate one part of download result by making a reasonable file name and calling downloadURLInSetAtPos()
+void downloader::downloadURLInSetByThread(int threadNo, int threadNum, const std::string &path, std::map<std::string, std::string> *tmpResult)
 {
-    for(int i = threadNo; i < this->downloadURLSet.size(); i += threadNum)
-        this->downloadURLInSetAtPos(i, path);
+    for(int i = threadNo; i < downloadURLSet.size(); i += threadNum)
+    {
+        //File name part
+        std::string tarFileName = std::string("");
+        //Use some method to get the file name here
+        std::string fileName = path + tarFileName;
+
+        //File content part
+        std::string fileContent = std::string("");
+        fileContent += this->downloadURLInSetAtPos(i, path);
+
+        tmpResult->insert(std::pair<std::string, std::string> (fileName, fileContent));
+    }
 }
 
 //We assume that *stream is a external memBlockStruc pointer which we will push the downloaded data into it
@@ -92,4 +113,14 @@ size_t downloader::fetchDownloadedData(void *ptr, size_t size, size_t nmemb, voi
     memcpy(&(mem->memBlock[0]), ptr, size);
     mem->realSize = size;
     return mem->realSize;
+}
+
+std::map<std::string, std::string> downloader::returnDownloadResultSet()
+{
+    return this->downloadResultSet;
+}
+
+downloader::~downloader()
+{
+    curl_global_cleanup();
 }

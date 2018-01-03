@@ -21,5 +21,11 @@ int main(int argc, char *argv[])
     dow.findURLwithPattern(patternSet, FILTERMODE_NEW);
     dow.downloadAllURLsInSet(1, std::string("./"));
 
+    std::map<std::string, std::string> downloadResult = dow.returnDownloadResultSet();
+
+    //Write into file here
+
+    dow.~downloader();
+
     return 0;
 }
