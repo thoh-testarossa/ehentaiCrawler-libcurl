@@ -1,45 +1,52 @@
 #include "picPageAnalyzer.h"
 
-picPageAnalyzer::picPageAnalyzer(const string &inputPage) : pageAnalyzer(inputPage)
+picPageAnalyzer::picPageAnalyzer(const std::string &inputPage) : pageAnalyzer(inputPage)
 {
 }
 
-string picPageAnalyzer::getNextPageURL()
+std::string picPageAnalyzer::getNextPageURL()
 {
-    return this->getInfoFromContent(string("id=\"next\""), 0, GETMODE_PART, string("href=\""), '\"');
+    return this->getInfoFromContent(std::string("id=\"next\""), 0, GETMODE_PART, std::string("href=\""), '\"');
 }
 
-string picPageAnalyzer::getPrevPageURL()
+std::string picPageAnalyzer::getPrevPageURL()
 {
-    return this->getInfoFromContent(string("id=\"prev\""), 0, GETMODE_PART, string("href=\""), '\"');
+    return this->getInfoFromContent(std::string("id=\"prev\""), 0, GETMODE_PART, std::string("href=\""), '\"');
 }
 
 int picPageAnalyzer::getCurrentPageNumber()
 {
-    return stoi(this->getInfoFromContent(string("span"), 1, GETMODE_ALL, string(""), '\0'));
+    return stoi(this->getInfoFromContent(std::string("span"), 1, GETMODE_ALL, std::string(""), '\0'));
 }
 
-string picPageAnalyzer::getLossyPicSourceURL()
+std::string picPageAnalyzer::getLossyPicSourceURL()
 {
-    return this->getInfoFromContent(string("img id=\"img\""), 0, GETMODE_PART, string("src=\""), '\"');
+    return this->getInfoFromContent(std::string("img id=\"img\""), 0, GETMODE_PART, std::string("src=\""), '\"');
 }
 
-string picPageAnalyzer::getOriginalPicSourceURL()
+std::string picPageAnalyzer::getOriginalPicSourceURL()
 {
-    string result_middle = this->getInfoFromContent(string("Download original"), -1, GETMODE_PART, string("href=\""), '\"');
-    string result = string("");
+    std::string result_middle = this->getInfoFromContent(std::string("Download original"), -1, GETMODE_PART, std::string("href=\""), '\"');
+    std::string result = std::string("");
 
     //Part to handle special character "&amp;". It will be replaced by a more uniform function in the future
-    while(int errpos = result_middle.find(string("&amp;")) != string::npos)
+    int errpos = result_middle.find(std::string("&amp;"));
+    while(errpos != std::string::npos)
     {
+        result.clear();
         int rpos = 0;
         for(rpos = 0; rpos < errpos; rpos++)
             result += result_middle[rpos];
 
-        result += result[errpos];
+        result += result_middle[errpos];
+        rpos++;
 
-        for(; rpos < result_middle.length() - (string("&amp;").length() - 1); rpos++)
-            result += result_middle[rpos + string("&amp;").length() - 1];
+        for(; rpos < result_middle.length() - (std::string("&amp;").length() - 1); rpos++)
+            result += result_middle[rpos + std::string("&amp;").length() - 1];
+
+        result_middle = result;
+
+        errpos = result_middle.find(std::string("&amp;"));
     }
     return result;
 }

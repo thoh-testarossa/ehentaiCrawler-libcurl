@@ -3,7 +3,7 @@
 #define OUTSIDE_ANGLEBRACKET 23
 #define INSIDE_ANGLEBRACKET 24
 
-pageAnalyzer::pageAnalyzer(const string &inputPage)
+pageAnalyzer::pageAnalyzer(const std::string &inputPage)
 {
     this->inputPage = inputPage;
     this->decomposePageContent();
@@ -11,7 +11,7 @@ pageAnalyzer::pageAnalyzer(const string &inputPage)
 
 void pageAnalyzer::decomposePageContent()
 {
-    string tmp = string("");
+    std::string tmp = std::string("");
     int state = OUTSIDE_ANGLEBRACKET;
     for(int i = 0; i < this->inputPage.length(); i++)
     {
@@ -40,12 +40,12 @@ void pageAnalyzer::decomposePageContent()
     }
 }
 
-string pageAnalyzer::getInfoFromContent(const string &keyToFindTarStr, int offset, int getMode, const string &keyToFindPos, char endChar)
+std::string pageAnalyzer::getInfoFromContent(const std::string &keyToFindTarStr, int offset, int getMode, const std::string &keyToFindPos, char endChar)
 {
-    string result = string("");
+    std::string result = std::string("");
     int pos = 0;
     for(; pos < this->pageContent.size(); pos++)
-        if(this->pageContent[pos].find(keyToFindTarStr) != string::npos) break;
+        if(this->pageContent[pos].find(keyToFindTarStr) != std::string::npos) break;
     if(pos == pageContent.size());
     else
     {
@@ -54,7 +54,7 @@ string pageAnalyzer::getInfoFromContent(const string &keyToFindTarStr, int offse
         else if(getMode == GETMODE_PART)
         {
             int startPos = this->pageContent[pos].find(keyToFindPos) + keyToFindPos.length();
-            if(startPos - keyToFindPos.length() == string::npos);
+            if(startPos - keyToFindPos.length() == std::string::npos);
             else
                 for(int i = startPos; this->pageContent[pos][i] != endChar; i++)
                     result += this->pageContent[pos][i];

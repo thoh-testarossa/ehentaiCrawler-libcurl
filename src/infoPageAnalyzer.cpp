@@ -1,25 +1,25 @@
 #include "infoPageAnalyzer.h"
 
-infoPageAnalyzer::infoPageAnalyzer(const string &inputPage) : pageAnalyzer(inputPage)
+infoPageAnalyzer::infoPageAnalyzer(const std::string &inputPage) : pageAnalyzer(inputPage)
 {
 }
 
-string infoPageAnalyzer::getComicOriginalName()
+std::string infoPageAnalyzer::getComicOriginalName()
 {
-    return this->getInfoFromContent(string("h1 id=\"gj\""), 1, GETMODE_ALL, string(""), '\0');
+    return this->getInfoFromContent(std::string("h1 id=\"gj\""), 1, GETMODE_ALL, std::string(""), '\0');
 }
 
-string infoPageAnalyzer::getComicTranslatedName()
+std::string infoPageAnalyzer::getComicTranslatedName()
 {
-    return this->getInfoFromContent(string("h1 id=\"gn\""), 1, GETMODE_ALL, string(""), '\0');
+    return this->getInfoFromContent(std::string("h1 id=\"gn\""), 1, GETMODE_ALL, std::string(""), '\0');
 }
 
-string infoPageAnalyzer::getFirstPicPageURL()
+std::string infoPageAnalyzer::getFirstPicPageURL()
 {
-    return this->getInfoFromContent(string("img alt=\""), -2, GETMODE_PART, string("href=\""), '\"');
+    return this->getInfoFromContent(std::string("img alt=\""), -2, GETMODE_PART, std::string("href=\""), '\"');
 }
 
 int infoPageAnalyzer::getTotalPageNumber()
 {
-    return stoi(this->getInfoFromContent(string("Length"), 4, GETMODE_PART, string(""), ' '));
+    return stoi(this->getInfoFromContent(std::string("Length"), 4, GETMODE_PART, std::string(""), ' '));
 }

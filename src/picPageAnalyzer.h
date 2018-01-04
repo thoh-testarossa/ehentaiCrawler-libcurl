@@ -7,10 +7,10 @@
 class picPageAnalyzer : public pageAnalyzer
 {
 public:
-    picPageAnalyzer(const string &inputPage);
-    string getNextPageURL();
-    string getPrevPageURL();
-    string getLossyPicSourceURL();
-    string getOriginalPicSourceURL();
+    picPageAnalyzer(const std::string &inputPage);
+    std::string getNextPageURL();
+    std::string getPrevPageURL();
+    std::string getLossyPicSourceURL();
+    std::string getOriginalPicSourceURL();
     int getCurrentPageNumber();
 };

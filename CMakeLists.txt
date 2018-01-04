@@ -7,6 +7,26 @@ find_package(CURL REQUIRED)
 include_directories(${CURL_INCLUDE_DIR})
 
 set(SOURCE_FILES
+        src/infoPageAnalyzer_test.cpp
+        src/config.h
+        src/pageAnalyzer.h
+        src/pageAnalyzer.cpp
+        src/infoPageAnalyzer.h
+        src/infoPageAnalyzer.cpp)
+
+add_executable(infoPageAnalyzer_test ${SOURCE_FILES})
+
+set(SOURCE_FILES
+        src/picPageAnalyzer_test.cpp
+        src/config.h
+        src/pageAnalyzer.h
+        src/pageAnalyzer.cpp
+        src/picPageAnalyzer.h
+        src/picPageAnalyzer.cpp)
+
+add_executable(picPageAnalyzer_test ${SOURCE_FILES})
+
+set(SOURCE_FILES
         src/downloader_test.cpp
         src/config.h
         src/downloader.h

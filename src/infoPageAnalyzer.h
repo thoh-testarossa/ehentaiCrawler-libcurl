@@ -7,9 +7,9 @@
 class infoPageAnalyzer : public pageAnalyzer
 {
 public:
-    infoPageAnalyzer(const string &inputPage);
-    string getComicOriginalName();
-    string getComicTranslatedName();
-    string getFirstPicPageURL();
+    infoPageAnalyzer(const std::string &inputPage);
+    std::string getComicOriginalName();
+    std::string getComicTranslatedName();
+    std::string getFirstPicPageURL();
     int getTotalPageNumber();
 };
