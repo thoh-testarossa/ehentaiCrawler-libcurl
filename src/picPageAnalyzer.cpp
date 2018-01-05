@@ -39,10 +39,11 @@ std::string picPageAnalyzer::getOriginalPicSourceURL()
             result += result_middle[rpos];
 
         result += result_middle[errpos];
-        rpos++;
 
-        for(; rpos < result_middle.length() - (std::string("&amp;").length() - 1); rpos++)
-            result += result_middle[rpos + std::string("&amp;").length() - 1];
+        rpos += std::string("&amp;").length();
+
+        for(; rpos < result_middle.length(); rpos++)
+            result += result_middle[rpos];
 
         result_middle = result;
 

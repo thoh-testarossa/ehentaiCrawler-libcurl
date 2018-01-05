@@ -4,6 +4,8 @@
 
 #include "downloader.h"
 
+#include <iostream>
+
 int main(int argc, char *argv[])
 {
     std::vector<std::string> originalURLs = std::vector<std::string>();
@@ -25,7 +27,9 @@ int main(int argc, char *argv[])
 
     //Write into file here
 
-    dow.~downloader();
+    std::cout << downloadResult.find(std::string("./"))->second.length() << std::endl;
+
+    dow.curlClean();
 
     return 0;
 }

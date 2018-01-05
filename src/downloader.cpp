@@ -10,12 +10,36 @@
 
 #include "curl/curl.h"
 
+int downloader::isInit = 0;
+
+void downloader::curlInit()
+{
+    if(this->isInit == 0)
+        curl_global_init(CURL_GLOBAL_ALL);
+    this->isInit++;
+}
+
+void downloader::curlClean()
+{
+    this->isInit--;
+    if(this->isInit == 0)
+        curl_global_cleanup();
+    this->originalURLSet.clear();
+    this->downloadURLSet.clear();
+    this->downloadResultSet.clear();
+}
+
 downloader::downloader(const std::vector<std::string> &originalURLSet)
 {
-    this->originalURLSet = originalURLSet;
+    this->curlInit();
+    this->setOriginalURLSet(originalURLSet);
     this->downloadURLSet = std::vector<std::string>();
     this->downloadResultSet = std::map<std::string, std::string>();
-    curl_global_init(CURL_GLOBAL_ALL);
+}
+
+void downloader::setOriginalURLSet(const std::vector<std::string> &originalURLSet)
+{
+    this->originalURLSet = originalURLSet;
 }
 
 //This filter is based on "OR" mechanism
@@ -66,13 +90,11 @@ std::string downloader::downloadURLInSetAtPos(int pos, const std::string &path)
 {
     CURL *curl = curl_easy_init();
 
-    memBlockStruc buf;
-    buf.realSize = 0;
-    buf.memBlock = nullptr;
+    memBlockStruc buf = {0, nullptr};
 
     curl_easy_setopt(curl, CURLOPT_URL, this->downloadURLSet[pos].c_str());
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)(&buf));
-    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, &downloader::fetchDownloadedData);
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, this->fetchDownloadedData);
     curl_easy_perform(curl);
     curl_easy_cleanup(curl);
 
@@ -103,24 +125,19 @@ void downloader::downloadURLInSetByThread(int threadNo, int threadNum, const std
 }
 
 //We assume that *stream is a external memBlockStruc pointer which we will push the downloaded data into it
-size_t downloader::fetchDownloadedData(void *ptr, size_t size, size_t nmemb, void *stream)
+size_t downloader::fetchDownloadedData(char *ptr, size_t size, size_t nmemb, void *stream)
 {
     memBlockStruc *mem = (memBlockStruc *)stream;
 
-    mem->memBlock = new char [size];
+    mem->memBlock = new char [size * nmemb];
     if(mem->memBlock == nullptr) return -1;
 
-    memcpy(&(mem->memBlock[0]), ptr, size);
-    mem->realSize = size;
+    memcpy(&(mem->memBlock[0]), ptr, size * nmemb);
+    mem->realSize = size * nmemb;
     return mem->realSize;
 }
 
 std::map<std::string, std::string> downloader::returnDownloadResultSet()
 {
     return this->downloadResultSet;
-}
-
-downloader::~downloader()
-{
-    curl_global_cleanup();
 }
