@@ -12,10 +12,10 @@ ehentaiCrawler-libcurl is a C++-written crawler which can download comics from e
 
 Page content analyzer
 
-## Todo List
-
 Download part using libcurl
 
 Multi-thread download
+
+## Todo List
 
 Support for cookies

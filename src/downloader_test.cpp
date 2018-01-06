@@ -10,7 +10,13 @@ int main(int argc, char *argv[])
 {
     std::vector<std::string> originalURLs = std::vector<std::string>();
     if(argc < 2)
+    {
         originalURLs.push_back(std::string("https://ehgt.org/g/f.png"));
+        originalURLs.push_back(std::string("https://ehgt.org/g/p.png"));
+        originalURLs.push_back(std::string("https://ehgt.org/g/n.png"));
+        originalURLs.push_back(std::string("https://ehgt.org/g/l.png"));
+        originalURLs.push_back(std::string("https://ehgt.org/g/b.png"));
+    }
     else
     {
         for(int i = 1; i < argc; i++)
@@ -21,13 +27,13 @@ int main(int argc, char *argv[])
 
     downloader dow = downloader(originalURLs);
     dow.findURLwithPattern(patternSet, FILTERMODE_NEW);
-    dow.downloadAllURLsInSet(1, std::string("./"));
+    dow.downloadAllURLsInSet(5, std::string("./"));
 
     std::map<std::string, std::string> downloadResult = dow.returnDownloadResultSet();
 
     //Write into file here
-
-    std::cout << downloadResult.find(std::string("./"))->second.length() << std::endl;
+    for(std::map<std::string, std::string>::iterator iter = downloadResult.begin(); iter != downloadResult.end(); iter++)
+        std::cout << iter->first << " " << iter->second.length() << std::endl;
 
     dow.curlClean();
 

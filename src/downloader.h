@@ -21,6 +21,7 @@ public:
     void downloadAllURLsInSet(int threadNum, const std::string &path);
     std::map<std::string, std::string> returnDownloadResultSet();
     void setOriginalURLSet(const std::vector<std::string> &originalURLSet);
+    std::string getFileNameFromURL(const std::string &downloadURL);
 protected:
     bool doesURLHavePattern(const std::string &url, const std::string &pattern);
     std::string downloadURLInSetAtPos(int pos, const std::string &path);

@@ -109,11 +109,10 @@ std::string downloader::downloadURLInSetAtPos(int pos, const std::string &path)
 //One thread generate one part of download result by making a reasonable file name and calling downloadURLInSetAtPos()
 void downloader::downloadURLInSetByThread(int threadNo, int threadNum, const std::string &path, std::map<std::string, std::string> *tmpResult)
 {
-    for(int i = threadNo; i < downloadURLSet.size(); i += threadNum)
+    for(int i = threadNo; i < this->downloadURLSet.size(); i += threadNum)
     {
         //File name part
-        std::string tarFileName = std::string("");
-        //Use some method to get the file name here
+        std::string tarFileName = this->getFileNameFromURL(this->downloadURLSet.at(i));
         std::string fileName = path + tarFileName;
 
         //File content part
@@ -140,4 +139,16 @@ size_t downloader::fetchDownloadedData(char *ptr, size_t size, size_t nmemb, voi
 std::map<std::string, std::string> downloader::returnDownloadResultSet()
 {
     return this->downloadResultSet;
+}
+
+std::string downloader::getFileNameFromURL(const std::string &downloadURL)
+{
+    std::string result = std::string("");
+    for(int i = downloadURL.length() - 1; i >= 0; i--)
+    {
+        if(downloadURL[i] == '/') break;
+        result += downloadURL[i];
+    }
+    std::reverse(result.begin(), result.end());
+    return result;
 }
