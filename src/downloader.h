@@ -14,18 +14,18 @@ typedef struct memBlockStruc
 class downloader
 {
 public:
-    downloader(const std::vector<std::string> &originalURLSet);
-    void curlInit();
+    downloader();
+    void curlInit(const std::vector<std::string> &originalURLSet);
     void curlClean();
     std::vector<std::string> findURLwithPattern(const std::vector<std::string> &patternSet, int filterMode);
     void downloadAllURLsInSet(int threadNum, const std::string &path);
     std::map<std::string, std::string> returnDownloadResultSet();
-    void setOriginalURLSet(const std::vector<std::string> &originalURLSet);
     std::string getFileNameFromURL(const std::string &downloadURL);
 protected:
     bool doesURLHavePattern(const std::string &url, const std::string &pattern);
     std::string downloadURLInSetAtPos(int pos, const std::string &path);
     void downloadURLInSetByThread(int threadNo, int threadNum, const std::string &path, std::map<std::string, std::string> *tmpResult);
+    void setOriginalURLSet(const std::vector<std::string> &originalURLSet);
 
     //This function is used to fit the form of curl-write function
     static size_t fetchDownloadedData(char *ptr, size_t size, size_t nmemb, void *stream);

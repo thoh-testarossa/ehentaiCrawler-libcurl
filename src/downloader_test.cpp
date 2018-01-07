@@ -25,7 +25,8 @@ int main(int argc, char *argv[])
 
     std::vector<std::string> patternSet = std::vector<std::string>();
 
-    downloader dow = downloader(originalURLs);
+    downloader dow = downloader();
+    dow.curlInit(originalURLs);
     dow.findURLwithPattern(patternSet, FILTERMODE_NEW);
     dow.downloadAllURLsInSet(5, std::string("./"));
 

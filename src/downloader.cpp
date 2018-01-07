@@ -12,11 +12,14 @@
 
 int downloader::isInit = 0;
 
-void downloader::curlInit()
+void downloader::curlInit(const std::vector<std::string> &originalURLSet)
 {
     if(this->isInit == 0)
         curl_global_init(CURL_GLOBAL_ALL);
     this->isInit++;
+    this->setOriginalURLSet(originalURLSet);
+    this->downloadURLSet = std::vector<std::string>();
+    this->downloadResultSet = std::map<std::string, std::string>();
 }
 
 void downloader::curlClean()
@@ -29,10 +32,9 @@ void downloader::curlClean()
     this->downloadResultSet.clear();
 }
 
-downloader::downloader(const std::vector<std::string> &originalURLSet)
+downloader::downloader()
 {
-    this->curlInit();
-    this->setOriginalURLSet(originalURLSet);
+    this->originalURLSet = std::vector<std::string>();
     this->downloadURLSet = std::vector<std::string>();
     this->downloadResultSet = std::map<std::string, std::string>();
 }
