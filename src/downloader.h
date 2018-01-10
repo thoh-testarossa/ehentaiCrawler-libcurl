@@ -8,6 +8,7 @@
 typedef struct memBlockStruc
 {
     int realSize;
+    int allocSize;
     char *memBlock;
 }memBlockStruc;
 

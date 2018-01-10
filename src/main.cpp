@@ -1,4 +1,6 @@
 #include <iostream>
+#include <iomanip>
+#include <fstream>
 #include "picPageAnalyzer.h"
 #include "infoPageAnalyzer.h"
 #include "downloader.h"
@@ -28,6 +30,7 @@ int main(int argc, char *argv[])
     std::string infoPageURL = (argc >= 2) ?
                               std::string(argv[1]) :
                               std::string("https://e-hentai.org/g/1164260/d72b2fcc89/");
+                              //std::string("https://www.baidu.com");
     originURLs.push_back(infoPageURL);
     dow.curlInit(originURLs);
     dow.findURLwithPattern(patternSet, FILTERMODE_NEW);
@@ -41,6 +44,8 @@ int main(int argc, char *argv[])
     for(std::map<std::string, std::string>::iterator iter = downloadResult.begin(); iter != downloadResult.end(); iter++)
         infoPage = iter->second;
 
+    //std::cout << infoPage << std::endl;
+
     infoPageAnalyzer infoAna = infoPageAnalyzer(infoPage);
 
     int pageCount = infoAna.getTotalPageNumber();
@@ -50,6 +55,7 @@ int main(int argc, char *argv[])
 
     //Get all the download URLs of pics from the 1st pic page
     std::vector<std::string> picURLs = std::vector<std::string>();
+    std::vector<std::string> picPageURLs = std::vector<std::string>();
     std::string picPage = std::string("");
 
     for(int i = 0; i < pageCount; i++)
@@ -69,12 +75,15 @@ int main(int argc, char *argv[])
         for(std::map<std::string, std::string>::iterator iter = downloadResult.begin(); iter != downloadResult.end(); iter++)
         {
             picPage = iter->second;
-            picURLs.push_back(picPage);
+            picPageURLs.push_back(picPage);
 
             picPageAnalyzer picAna = picPageAnalyzer(picPage);
 
             picPageURL = picAna.getNextPageURL();
             picURLs.push_back(picAna.getLossyPicSourceURL());
+
+            std::cout << std::setw(3) << std::setfill(' ') << i << ": ";
+            std::cout << picAna.getLossyPicSourceURL() << std::endl;
         }
     }
 
@@ -90,7 +99,13 @@ int main(int argc, char *argv[])
     downloadResult = dow.returnDownloadResultSet();
 
     //Write them back to the file
-    //Need to be added
+    for(std::map<std::string, std::string>::iterator iter = downloadResult.begin(); iter != downloadResult.end(); iter++)
+    {
+        std::ofstream fout(iter->first, std::ios::out | std::ios::binary);
+        if(fout.is_open())
+            fout.write(iter->second.c_str(), iter->second.length());
+        fout.close();
+    }
 
     return 0;
 }

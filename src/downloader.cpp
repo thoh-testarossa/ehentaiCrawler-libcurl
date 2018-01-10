@@ -3,9 +3,10 @@
 #include <ctime>
 #include <cstdlib>
 
-
+#include <iostream>
 #include <fstream>
 #include <thread>
+#include <chrono>
 #include <sstream>
 
 #include "curl/curl.h"
@@ -77,11 +78,33 @@ void downloader::downloadAllURLsInSet(int threadNum, const std::string &path)
     std::vector<std::map<std::string, std::string>> tmpResultSet = std::vector<std::map<std::string, std::string>>();
     for(int i = 0; i < threadNum; i++)
         tmpResultSet.push_back(std::map<std::string, std::string>());
+
+    std::vector<std::thread> threadPool = std::vector<std::thread>();
     for(int i = 0; i < threadNum; i++)
+        threadPool.push_back(std::thread(&downloader::downloadURLInSetByThread, this, i, threadNum, path, &tmpResultSet[i]));
+
+    bool *isJoint = new bool[threadNum];
+    for(int i = 0; i < threadNum; i++) isJoint[i] = false;
+    while(true)
     {
-        std::thread thd(&downloader::downloadURLInSetByThread, this, i, threadNum, path, &tmpResultSet[i]);
-        thd.join();
+        std::this_thread::sleep_for(std::chrono::milliseconds(250));
+        bool allThreadChk = true;
+        for(int i = 0; i < threadNum; i++)
+        {
+            if(!isJoint[i])
+            {
+                if(threadPool[i].joinable())
+                {
+                    threadPool[i].join();
+                    isJoint[i] = true;
+                }
+            }
+            allThreadChk &= isJoint[i];
+        }
+        if(allThreadChk) break;
     }
+    free(isJoint);
+
     for(int i = 0; i < threadNum; i++)
         this->downloadResultSet.insert(tmpResultSet[i].begin(), tmpResultSet[i].end());
 }
@@ -92,7 +115,7 @@ std::string downloader::downloadURLInSetAtPos(int pos, const std::string &path)
 {
     CURL *curl = curl_easy_init();
 
-    memBlockStruc buf = {0, nullptr};
+    memBlockStruc buf = {0, 1, nullptr};
 
     curl_easy_setopt(curl, CURLOPT_URL, this->downloadURLSet[pos].c_str());
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)(&buf));
@@ -105,6 +128,8 @@ std::string downloader::downloadURLInSetAtPos(int pos, const std::string &path)
     for(int i = 0; i < buf.realSize; i++)
         content += buf.memBlock[i];
 
+    free(buf.memBlock);
+
     return content;
 }
 
@@ -113,6 +138,7 @@ void downloader::downloadURLInSetByThread(int threadNo, int threadNum, const std
 {
     for(int i = threadNo; i < this->downloadURLSet.size(); i += threadNum)
     {
+        std::cout << "Page " << i << " begin" << std::endl;
         //File name part
         std::string tarFileName = this->getFileNameFromURL(this->downloadURLSet.at(i));
         std::string fileName = path + tarFileName;
@@ -122,6 +148,7 @@ void downloader::downloadURLInSetByThread(int threadNo, int threadNum, const std
         fileContent += this->downloadURLInSetAtPos(i, path);
 
         tmpResult->insert(std::pair<std::string, std::string> (fileName, fileContent));
+        std::cout << "Page " << i << " end" << std::endl;
     }
 }
 
@@ -130,12 +157,17 @@ size_t downloader::fetchDownloadedData(char *ptr, size_t size, size_t nmemb, voi
 {
     memBlockStruc *mem = (memBlockStruc *)stream;
 
-    mem->memBlock = new char [size * nmemb];
+    if(mem->memBlock == nullptr) mem->memBlock = (char *)malloc(mem->allocSize);
     if(mem->memBlock == nullptr) return -1;
+    while(mem->realSize + size * nmemb > mem->allocSize)
+    {
+        mem->allocSize <<= 1;
+        mem->memBlock = (char *)realloc(mem->memBlock, mem->allocSize);
+    }
 
-    memcpy(&(mem->memBlock[0]), ptr, size * nmemb);
-    mem->realSize = size * nmemb;
-    return mem->realSize;
+    memcpy(&(mem->memBlock[mem->realSize]), ptr, size * nmemb);
+    mem->realSize += size * nmemb;
+    return size * nmemb;
 }
 
 std::map<std::string, std::string> downloader::returnDownloadResultSet()
