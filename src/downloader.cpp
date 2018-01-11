@@ -180,7 +180,7 @@ std::string downloader::getFileNameFromURL(const std::string &downloadURL)
     std::string result = std::string("");
     for(int i = downloadURL.length() - 1; i >= 0; i--)
     {
-        if(downloadURL[i] == '/') break;
+        if(downloadURL[i] == '/' && result != std::string("")) break;
         result += downloadURL[i];
     }
     std::reverse(result.begin(), result.end());

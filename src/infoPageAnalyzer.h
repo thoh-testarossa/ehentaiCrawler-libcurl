@@ -12,4 +12,6 @@ public:
     std::string getComicTranslatedName();
     std::string getFirstPicPageURL();
     int getTotalPageNumber();
+    std::string getGidInString();
+    std::string getPicPageURL(std::string gidString, int picPageNum);
 };

@@ -1,4 +1,5 @@
 #include "infoPageAnalyzer.h"
+#include <sstream>
 
 infoPageAnalyzer::infoPageAnalyzer(const std::string &inputPage) : pageAnalyzer(inputPage)
 {
@@ -22,4 +23,14 @@ std::string infoPageAnalyzer::getFirstPicPageURL()
 int infoPageAnalyzer::getTotalPageNumber()
 {
     return stoi(this->getInfoFromContent(std::string("Length"), 4, GETMODE_PART, std::string(""), ' '));
+}
+
+std::string infoPageAnalyzer::getGidInString() {
+    return this->getInfoFromContent(std::string("?gid="), 0, GETMODE_PART, std::string("?gid="), '&');
+}
+
+std::string infoPageAnalyzer::getPicPageURL(std::string gidString, int picPageNum) {
+    std::stringstream ss = std::stringstream();
+    ss << picPageNum;
+    return this->getInfoFromContent(gidString + std::string("-") + ss.str(), 0, GETMODE_PART, std::string("href=\""), '\"');
 }
