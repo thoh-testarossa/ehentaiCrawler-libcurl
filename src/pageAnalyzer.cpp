@@ -13,12 +13,12 @@ void pageAnalyzer::decomposePageContent()
 {
     std::string tmp = std::string("");
     int state = OUTSIDE_ANGLEBRACKET;
-    for(int i = 0; i < this->inputPage.length(); i++)
+    for (char i : this->inputPage)
     {
         if(state == OUTSIDE_ANGLEBRACKET)
         {
-            if(this->inputPage[i] != '<')
-                tmp += this->inputPage[i];
+            if(i != '<')
+                tmp += i;
             else
             {
                 state = INSIDE_ANGLEBRACKET;
@@ -28,8 +28,8 @@ void pageAnalyzer::decomposePageContent()
         }
         else if(state == INSIDE_ANGLEBRACKET)
         {
-            if(this->inputPage[i] != '>')
-                tmp += this->inputPage[i];
+            if(i != '>')
+                tmp += i;
             else
             {
                 state = OUTSIDE_ANGLEBRACKET;
@@ -37,6 +37,7 @@ void pageAnalyzer::decomposePageContent()
                 tmp.clear();
             }
         }
+        else;
     }
 }
 

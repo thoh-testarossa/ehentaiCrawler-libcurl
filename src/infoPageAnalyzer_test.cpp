@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
     if(fin.is_open())
     {
         while (!fin.eof())
-            inputPage += fin.get();
+            inputPage += (char)fin.get();
     }
     fin.close();
 

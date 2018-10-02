@@ -2,12 +2,14 @@
 
 #include <ctime>
 #include <cstdlib>
+#include <cstring>
 
 #include <iostream>
 #include <fstream>
 #include <thread>
 #include <chrono>
 #include <sstream>
+#include <algorithm>
 
 #include "curl/curl.h"
 
@@ -51,7 +53,7 @@ std::vector<std::string> downloader::findURLwithPattern(const std::vector<std::s
     std::vector<std::string> result = std::vector<std::string>();
     if(filterMode == FILTERMODE_NEW) result = this->originalURLSet;
     else if(filterMode == FILTERMODE_ADD) result = this->downloadURLSet;
-    for(std::vector<std::string>::iterator url_iter = result.begin(); url_iter != result.end(); url_iter++)
+    for(auto url_iter = result.begin(); url_iter != result.end(); url_iter++)
     {
         std::vector<std::string>::const_iterator pattern_iter;
         for(pattern_iter = patternSet.begin(); pattern_iter != patternSet.end(); pattern_iter++)
@@ -67,8 +69,7 @@ std::vector<std::string> downloader::findURLwithPattern(const std::vector<std::s
 
 bool downloader::doesURLHavePattern(const std::string &url, const std::string &pattern)
 {
-    if(url.find(pattern) != std::string::npos) return true;
-    else return false;
+    return url.find(pattern) != std::string::npos;
 }
 
 //A multiple thread method(downloadURLInSetByThread called)
@@ -77,11 +78,11 @@ void downloader::downloadAllURLsInSet(int threadNum, const std::string &path)
 {
     std::vector<std::map<std::string, std::string>> tmpResultSet = std::vector<std::map<std::string, std::string>>();
     for(int i = 0; i < threadNum; i++)
-        tmpResultSet.push_back(std::map<std::string, std::string>());
+        tmpResultSet.emplace_back();
 
     std::vector<std::thread> threadPool = std::vector<std::thread>();
     for(int i = 0; i < threadNum; i++)
-        threadPool.push_back(std::thread(&downloader::downloadURLInSetByThread, this, i, threadNum, path, &tmpResultSet[i]));
+        threadPool.emplace_back(&downloader::downloadURLInSetByThread, this, i, threadNum, path, &tmpResultSet[i]);
 
     bool *isJoint = new bool[threadNum];
     for(int i = 0; i < threadNum; i++) isJoint[i] = false;
@@ -178,9 +179,9 @@ std::map<std::string, std::string> downloader::returnDownloadResultSet()
 std::string downloader::getFileNameFromURL(const std::string &downloadURL)
 {
     std::string result = std::string("");
-    for(int i = downloadURL.length() - 1; i >= 0; i--)
+    for (int i = downloadURL.length() - 1; i >= 0; i--)
     {
-        if(downloadURL[i] == '/' && result != std::string("")) break;
+        if (downloadURL[i] == '/' && result != std::string("")) break;
         result += downloadURL[i];
     }
     std::reverse(result.begin(), result.end());
