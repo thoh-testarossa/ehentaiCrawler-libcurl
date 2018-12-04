@@ -32,5 +32,5 @@ std::string infoPageAnalyzer::getGidInString() {
 std::string infoPageAnalyzer::getPicPageURL(std::string gidString, int picPageNum) {
     std::stringstream ss = std::stringstream();
     ss << picPageNum;
-    return this->getInfoFromContent(gidString + std::string("-") + ss.str(), 0, GETMODE_PART, std::string("href=\""), '\"');
+    return this->getInfoFromContent("/" + gidString + std::string("-") + ss.str(), 0, GETMODE_PART, std::string("href=\""), '\"');
 }
