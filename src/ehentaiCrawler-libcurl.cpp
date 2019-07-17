@@ -3,9 +3,12 @@
 #include <fstream>
 #include <sstream>
 #include <cmath>
-#include "picPageAnalyzer.h"
-#include "infoPageAnalyzer.h"
-#include "downloader.h"
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include "pageAnalyzer/picPageAnalyzer.h"
+#include "pageAnalyzer/infoPageAnalyzer.h"
+#include "downloader-libcurl/downloader/downloader-libcurl.h"
 
 using namespace std;
 
@@ -13,16 +16,16 @@ using namespace std;
 int main(int argc, char *argv[])
 {
     //Initialize the program
-    downloader dow = downloader();
-    std::vector<std::string> originURLs = std::vector<std::string>();
-    std::vector<std::string> patternSet = std::vector<std::string>();
-    std::map<std::string, std::string> downloadResultSet = std::map<std::string, std::string>();
+    Downloader_libcurl dow = Downloader_libcurl();
+    auto originURLs = std::vector<std::string>();
+    auto patternSet = std::vector<std::string>();
+    auto downloadResultSet = std::vector<std::pair<std::string, std::string>>();
 
     std::string path = std::string("./");
 
     //Analyse the parameters in the argv[]
     //Note: this part will be filled by using a parser class which will be added into this project in future
-    std::vector<std::string> parameterSet = std::vector<std::string>();
+    auto parameterSet = std::vector<std::string>();
     for(int i = 1; i < argc; i++) parameterSet.emplace_back(argv[i]);
 
     std::string infoPageURL = (argc >= 2) ?
@@ -37,15 +40,16 @@ int main(int argc, char *argv[])
 
     originURLs.clear();
     patternSet.clear();
+    dow.downloadedFileSet.clear();
     downloadResultSet.clear();
 
     originURLs.push_back(infoPageURL);
-    dow.curlInit(originURLs);
-    dow.findURLwithPattern(patternSet, FILTERMODE_NEW);
-    dow.downloadAllURLsInSet(threadNum, path);
-    downloadResultSet = dow.returnDownloadResultSet();
+    //dow.findURLwithPattern(patternSet, FILTERMODE_NEW);
+    dow.downloadURLSet = originURLs;
+    dow.downloadAll(threadNum, path, false);
+    downloadResultSet = dow.downloadedFileSet;
 
-    dow.curlClean();
+    //dow.curlClean();
 
     //Analyse the information page
     std::string infoPage = std::string("");
@@ -60,9 +64,18 @@ int main(int argc, char *argv[])
     std::string comicTName = infoAna.getComicTranslatedName();
     std::string gidString = infoAna.getGidInString();
 
+    //Build comic directory
+    if(access(comicOName.c_str(), F_OK) == -1)
+        mkdir(comicOName.c_str(), S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+
+    path += comicOName + std::string("/");
+    //Test
+    std::cout << path << std::endl;
+
     //Get other info pages
     originURLs.clear();
     patternSet.clear();
+    dow.downloadedFileSet.clear();
     downloadResultSet.clear();
 
     for (int i = 1; i < ceil((double) pageCount / picPagesPerInfoPage); i++)
@@ -79,12 +92,9 @@ int main(int argc, char *argv[])
         originURLs.push_back(infoPageURL + suffix);
     }
 
-    dow.curlInit(originURLs);
-    dow.findURLwithPattern(patternSet, FILTERMODE_NEW);
-    dow.downloadAllURLsInSet(threadNum, path);
-    downloadResultSet = dow.returnDownloadResultSet();
-
-    dow.curlClean();
+    dow.downloadURLSet = originURLs;
+    dow.downloadAll(threadNum, path, false);
+    downloadResultSet = dow.downloadedFileSet;
 
     for (auto &downloadResult : downloadResultSet) infoPages.push_back(downloadResult.second);
 
@@ -109,31 +119,38 @@ int main(int argc, char *argv[])
 
     originURLs.clear();
     patternSet.clear();
+    dow.downloadedFileSet.clear();
     downloadResultSet.clear();
 
     originURLs = picPageURLs;
-    dow.curlInit(originURLs);
-    dow.findURLwithPattern(patternSet, FILTERMODE_NEW);
-    dow.downloadAllURLsInSet(threadNum, path);
-    downloadResultSet = dow.returnDownloadResultSet();
-
-    dow.curlClean();
-
-    for (auto &downloadResult : downloadResultSet) picPages.push_back(downloadResult.second);
+    dow.downloadURLSet = originURLs;
+    //dow.findURLwithPattern(patternSet, FILTERMODE_NEW);
+    dow.downloadAll(threadNum, path, false);
+    downloadResultSet = dow.downloadedFileSet;
 
     //Get all the download URLs of pics from the pic page
     std::vector<std::string> picURLs = std::vector<std::string>();
-    for (auto &picPage : picPages) picURLs.push_back(picPageAnalyzer(picPage).getLossyPicSourceURL());
+
+    for(const auto &downloadResult : downloadResultSet)
+    {
+        auto picURL = picPageAnalyzer(downloadResult.second).getLossyPicSourceURL();
+        picURLs.push_back(picURL);
+        //Test
+        std::cout << downloadResult.first << " -> " << picURL << endl;
+    }
 
     //Download all the pics concurrently
     originURLs.clear();
     patternSet.clear();
+    dow.downloadedFileSet.clear();
     downloadResultSet.clear();
 
     originURLs = picURLs;
-    dow.curlInit(originURLs);
-    dow.findURLwithPattern(patternSet, FILTERMODE_NEW);
-    dow.downloadAllURLsInSet(threadNum, path);
+    dow.downloadURLSet= originURLs;
+    //dow.findURLwithPattern(patternSet, FILTERMODE_NEW);
+    dow.downloadAll(threadNum, path, true);
+
+    /*
     downloadResultSet = dow.returnDownloadResultSet();
 
     //Write them back to the file
@@ -143,6 +160,7 @@ int main(int argc, char *argv[])
         if (fout.is_open()) fout.write(downloadResult.second.c_str(), downloadResult.second.length());
         fout.close();
     }
+     */
 
     return 0;
 }

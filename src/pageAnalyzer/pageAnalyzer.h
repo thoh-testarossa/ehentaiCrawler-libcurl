@@ -1,6 +1,6 @@
 #pragma once
 
-#include "config.h"
+#include "../include/config.h"
 
 #define GETMODE_ALL 17
 #define GETMODE_PART 18

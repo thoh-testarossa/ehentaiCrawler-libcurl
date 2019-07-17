@@ -2,7 +2,7 @@
 // Created by Thoh Testarossa on 2018/1/4.
 //
 
-#include "picPageAnalyzer.h"
+#include "../pageAnalyzer/picPageAnalyzer.h"
 
 #include <fstream>
 #include <iostream>

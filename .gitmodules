@@ -1,0 +1,3 @@
+[submodule "src/downloader-libcurl"]
+	path = src/downloader-libcurl
+	url = git@github.com:thoh-testarossa/downloader-libcurl.git

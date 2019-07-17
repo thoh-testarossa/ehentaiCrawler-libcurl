@@ -2,7 +2,7 @@
 // Created by Thoh Testarossa on 2018/1/4.
 //
 
-#include "infoPageAnalyzer.h"
+#include "../pageAnalyzer/infoPageAnalyzer.h"
 
 #include <fstream>
 #include <iostream>

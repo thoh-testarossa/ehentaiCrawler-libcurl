@@ -1,6 +1,6 @@
 #pragma once
 
-#include "config.h"
+#include "../include/config.h"
 
 #include "pageAnalyzer.h"
 
