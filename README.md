@@ -16,7 +16,13 @@ Sometimes you may be interested in changing some configurations of this program 
 Clone this project to your local machine and move to the root directory of this project
 
 ```
-cd [path]/[to]/adb-BufferSystem
+cd [path]/[to]/ehentaiCrawler-libcurl
+```
+
+Initialize submodule "downloader"
+
+```
+git submodule update --init
 ```
 
 Create a build directory
