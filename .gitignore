@@ -1,5 +1,6 @@
 *.pro.user
 *.pro
+build/
 bin/
 .idea
 .DS_Store
