@@ -11,7 +11,7 @@ RUN git clone https://github.com/thoh-testarossa/ehentaiCrawler-libcurl.git
 RUN cd ehentaiCrawler-libcurl && git submodule update --init
 RUN mkdir ehentaiCrawler-libcurl/build
 RUN cd ehentaiCrawler-libcurl/build && cmake .. && make
-RUN ln -s ehentaiCrawler-libcurl/build/bin/ehentaiCrawler-libcurl ./ehentaiCrawler-libcurl
+RUN ln -s ehentaiCrawler-libcurl/build/bin/ehentaiCrawler-libcurl ehentaiCrawler
 
 EXPOSE 443 80 22
 CMD ["/bin/bash", "-D"]
